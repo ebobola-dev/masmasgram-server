@@ -52,4 +52,4 @@ class Validations:
 		if not isinstance(image_ext, str):
 			return 'Расширение фотографии должно быть в виде строки'
 		if image_ext not in ALLOWED_IMAGE_EXTENSIONS:
-			return f'Неверное разшерение фотографии (допустимые: {ALLOWED_IMAGE_EXTENSIONS})'
+			return f'Неверное расширение фотографии (допустимые: {ALLOWED_IMAGE_EXTENSIONS})'

@@ -30,7 +30,7 @@ class AuthController:
 			fullname = body.get('fullname')
 			avatar = body.get('avatar')
 			avatar_ext = body.get('avatar_ext')
-			print(f'[REGISTRATION] Got username: {username}, fullname: {fullname}')
+			print(f'[REGISTRATION] Got username: {username}, fullname: {fullname}, avatar_ext: {avatar_ext}')
 			validation_errors = tuple(
 				filter(
 					lambda validation_error: validation_error is not None,
