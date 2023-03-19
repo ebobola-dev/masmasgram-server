@@ -9,7 +9,7 @@ class Post:
 			id: str,
 			from_user: str,
 			date: datetime | str,
-			imageUrl: str,
+			imageUrls: list[str],
 			description: str | None = None,
 			likes: list[str] = [],
 			comments: list[str] = [],
@@ -18,7 +18,7 @@ class Post:
 		self.id = id
 		self.from_user = from_user
 		self.date = ModelsUtils.to_datetime(date)
-		self.imageUrl = imageUrl
+		self.imageUrls = imageUrls
 		self.description = description
 		self.likes = likes
 		self.comments = comments
@@ -27,14 +27,14 @@ class Post:
 	@staticmethod
 	def new(
 		from_user: str,
-		imageUrl: str,
+		imageUrls: str,
 		description: str | None = None,
 	):
 		return Post(
 			id=str(uuid4()),
 			from_user=from_user,
 			date=datetime.now(),
-			imageUrl=imageUrl,
+			imageUrls=imageUrls,
 			description=description,
 		)
 

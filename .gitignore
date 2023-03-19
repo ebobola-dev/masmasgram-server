@@ -3,3 +3,6 @@
 **/__pycache__/
 
 /config/static
+/user_files
+test.py
+upload_image_test.py

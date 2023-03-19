@@ -1,7 +1,7 @@
 import re
 
 from config.models import *
-from services.database.database import DatabaseService
+from services.database import DatabaseService
 
 #? Any function retutns None if all checks passed successfully, else returs error message
 class Validations:
@@ -42,3 +42,14 @@ class Validations:
 		fullname = fullname.strip()
 		if not len(fullname) in range(FULLNAME_MAX_LENGTH + 1):
 			return f'Максимальная длина имени: {FULLNAME_MAX_LENGTH}'
+
+	@staticmethod
+	def image_validation(image, image_ext: str):
+		if image is None:
+			return
+		if image_ext is None:
+			return 'Расширение фотографии не указано'
+		if not isinstance(image_ext, str):
+			return 'Расширение фотографии должно быть в виде строки'
+		if image_ext not in ALLOWED_IMAGE_EXTENSIONS:
+			return f'Неверное разшерение фотографии (допустимые: {ALLOWED_IMAGE_EXTENSIONS})'

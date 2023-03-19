@@ -34,6 +34,7 @@ class ModelsUtils:
 	def model_to_client_view(model: object):
 		client_view = model.__dict__
 		client_view.pop('password', None)	#? if model constrain 'password' field, remove this field
+		client_view.pop('avatar_path', None)	#? if model constrain 'avatar_path' field, remove this field
 
 		#? [For User model] if models constrain 'sid' field, change this field value to 'is_online'
 		if 'sid' in client_view.keys():

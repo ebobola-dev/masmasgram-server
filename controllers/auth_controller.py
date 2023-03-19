@@ -2,11 +2,15 @@ import jwt
 import bcrypt
 from aiohttp import web
 from socketio import AsyncServer
+from traceback import format_exc
 
 from models.user import User
 from config.server import ServerConfig
 from services.validations import Validations
-from services.database.database import DatabaseService
+from services.database import DatabaseService
+from services.image import ImageService
+
+
 
 def _generateAccessToken(id: str):
 	payload = {
@@ -20,10 +24,12 @@ class AuthController:
 
 	async def registration(self, request: web.Request):
 		try:
-			body: dict = await request.json()
+			body: dict = await request.post()
 			username = body.get('username')
 			password = body.get('password')
 			fullname = body.get('fullname')
+			avatar = body.get('avatar')
+			avatar_ext = body.get('avatar_ext')
 			print(f'[REGISTRATION] Got username: {username}, fullname: {fullname}')
 			validation_errors = tuple(
 				filter(
@@ -32,6 +38,7 @@ class AuthController:
 						await Validations.username_validation(username),
 						Validations.password_validation(password),
 						Validations.fullname_validation(fullname),
+						Validations.image_validation(image=avatar, image_ext=avatar_ext),
 					),
 				)
 			)
@@ -50,21 +57,39 @@ class AuthController:
 				if len(fullname.strip()) == 0:
 					fullname = None
 
-			#? Hashing password and create new user object, save new user in database
+			#? Hashing password and create new user object
 			hashed_password = bcrypt.hashpw(password.encode('ascii'), salt=ServerConfig.PASSWORD_HASHING_SALT)
 			new_user = User.new(
 				username=username,
 				password=hashed_password,
 				fullname=fullname,
 			)
+
+			#? Saving avatar if exists
+			is_avatar_saved = False
+			if avatar is not None:
+				try:
+					avatar_local_filepath = ImageService.save_avatar(
+						user_id=new_user.id,
+						avatar=avatar,
+						avatar_ext=avatar_ext,
+					)
+					new_user.avatar_path = avatar_local_filepath
+					is_avatar_saved = True
+				except:
+					print(f'[REGISTRATION] Error on saving avatar: {format_exc()}')
+
+			#? Save new user in database
 			DatabaseService.user_collection.insert_one(new_user.to_database_view())
 
 			print(f'[REGISTRATION] Successfully registered: @{username} "{fullname}"')
 			return web.json_response(
-				data=new_user.to_client_view(),
+				data={
+					'is_avatar_saved': is_avatar_saved,
+				},
 			)
 		except Exception as error:
-			print(f'[REGISTRATION] UNEXCEPTED error: {error}')
+			print(f'[REGISTRATION] UNEXCEPTED error: {format_exc()}')
 			return web.json_response(
 				status=500,
 				data='unexpected server error',

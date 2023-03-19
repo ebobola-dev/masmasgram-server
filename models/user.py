@@ -10,7 +10,7 @@ class User:
 			password: str,
 			fullname: str | None = None,
 			sid: list[str] = [],
-			avatar_url: str | None = None,
+			avatar_path: str | None = None,
 			posts: list[str] = [],
 			followers: list[str] = [],
 			follows: list[str] = [],
@@ -20,7 +20,7 @@ class User:
 		self.password = password
 		self.fullname = fullname
 		self.sid = sid
-		self.avatar_url = avatar_url
+		self.avatar_path = avatar_path
 		self.posts = posts
 		self.followers = followers
 		self.follows = follows
@@ -30,14 +30,12 @@ class User:
 		username: str,
 		password: str,
 		fullname: str | None = None,
-		avatar_url: str | None = None,
 	):
 		return User(
 			id=str(uuid4()),
 			username=username,
 			password=password,
 			fullname=fullname,
-			avatar_url=avatar_url,
 		)
 
 	def to_database_view(self):
