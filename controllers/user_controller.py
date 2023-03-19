@@ -1,6 +1,5 @@
 from aiohttp import web
 from socketio import AsyncServer
-from bson.objectid import ObjectId
 
 from config.server import ServerConfig
 from services.database.user_database import UserDatabase

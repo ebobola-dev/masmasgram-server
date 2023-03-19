@@ -17,6 +17,7 @@ user_controller = UserController(sio=sio)
 app.add_routes([
 	web.get('/username_is_exists', user_controller.check_username_is_exists),
 	web.post('/registration', auth_controller.registration),
+	web.post('/login', auth_controller.login),
 ])
 
 async def main():

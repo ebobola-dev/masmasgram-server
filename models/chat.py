@@ -1,18 +1,17 @@
-from bson.objectid import ObjectId
+from uuid import uuid4
 from datetime import datetime
 
 from models.user import User
 from models.chat import Chat
 from utils.models import ModelsUtils
-from utils.database import DatabaseUtils
 
 class Chat:
 	def __init__(
 			self,
-			id: ObjectId | str,
+			id: str,
 			messages_count: int,
-			users: tuple[ObjectId],
-			last_message: ObjectId | str = None,
+			users: tuple[str],
+			last_message: str = None,
 	):
 		self.id = ModelsUtils.to_object_id(id)
 		self.messages_count = messages_count
@@ -21,17 +20,20 @@ class Chat:
 
 	@staticmethod
 	def new(
-		users: str | ObjectId,
+		users: tuple[str],
 	):
 		return Chat(
-			id=ObjectId(),
+			id=str(uuid4()),
 			messages_count=0,
 			users=users,
 		)
 
 	def to_database_view(self):
-		return DatabaseUtils.model_to_database_view(model=self)
+		return ModelsUtils.model_to_database_view(model=self)
 
 	@staticmethod
 	def from_database_view(database_chat: dict):
-		return Chat(**DatabaseUtils.database_view_to_model_dict(database_chat))
+		return Chat(**ModelsUtils.database_view_to_model_dict(database_chat))
+
+	def to_client_view(self):
+		return ModelsUtils.model_to_client_view(model=self)

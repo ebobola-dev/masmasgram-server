@@ -1,14 +1,13 @@
 import re
-from aiohttp import web
 
 from config.models import *
-from services.database.user_database import UserDatabase
+from services.database.database import DatabaseService
 
 #? Any function retutns None if all checks passed successfully, else returs error message
 class Validations:
 	username_pattern = re.compile(USERNAME_REGEX_PATTERN)
 	@staticmethod
-	async def username_validation(username: str | None):
+	async def username_validation(username: str | None, is_new: bool = True):
 		if username is None:
 			return 'Имя пользователя не указано'
 		if not isinstance(username, str):
@@ -18,8 +17,10 @@ class Validations:
 		regex_result = Validations.username_pattern.match(username)
 		if regex_result is None:
 			return 'Имя пользователя должно начинатся с латинской буквы, также оно может содержать только латиницу, цифры и знак нижнего подчеркивания'
-		if UserDatabase.username_is_taken(username):
-			return 'Имя пользователя уже занято'
+		if is_new:
+			username_is_taken = DatabaseService.user_collection.find_one({'username': username}) != None
+			if username_is_taken:
+				return 'Имя пользователя уже занято'
 
 	@staticmethod
 	def password_validation(password: str | None):
@@ -28,7 +29,7 @@ class Validations:
 		if not isinstance(password, str):
 			return f'Пароль должен быть строчным типом'
 		if not len(password) in range(PASSWORD_MIN_LEN, PASSWORD_MAX_LEN + 1):
-			return 'Неверная длина пароля'
+			return f'Неверная длина пароля (мин: {PASSWORD_MIN_LEN}, макс: {PASSWORD_MAX_LEN})'
 		if ' ' in password:
 			return 'Пароль не должен содержать пробелы'
 
