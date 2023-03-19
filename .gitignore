@@ -2,5 +2,4 @@
 /.vscode
 **/__pycache__/
 
-/config/database.py
-/config/server.py
+/config/static

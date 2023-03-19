@@ -9,7 +9,7 @@ class User:
 			username: str,
 			password: str,
 			fullname: str | None = None,
-			is_online: bool = False,
+			sid: list[str] = [],
 			avatar_url: str | None = None,
 			posts: list[str] = [],
 			followers: list[str] = [],
@@ -19,7 +19,7 @@ class User:
 		self.username = username
 		self.password = password
 		self.fullname = fullname
-		self.is_online = is_online
+		self.sid = sid
 		self.avatar_url = avatar_url
 		self.posts = posts
 		self.followers = followers

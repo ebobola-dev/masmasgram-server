@@ -35,6 +35,10 @@ class ModelsUtils:
 		client_view = model.__dict__
 		client_view.pop('password', None)	#? if model constrain 'password' field, remove this field
 
+		#? [For User model] if models constrain 'sid' field, change this field value to 'is_online'
+		if 'sid' in client_view.keys():
+			client_view['is_online'] = len(client_view.pop('sid')) > 0
+
 		#? if model constrain datetime fields, convert this fields to str type
 		for key, value in client_view.items():
 			if isinstance(value, datetime):
