@@ -1,0 +1,1 @@
+UNEXCEPTED_SERVER_ERROR_MESSAGE = 'Непредвиденная ошибка сервера'

@@ -5,6 +5,7 @@ from socketio import AsyncServer
 from traceback import format_exc
 
 from models.user import User
+from config.strings import *
 from config.server import ServerConfig
 from services.validations import Validations
 from services.database import DatabaseService
@@ -16,7 +17,11 @@ def _generateAccessToken(id: str):
 	payload = {
 		'id': id,
 	}
-	return jwt.encode(payload, ServerConfig.JWT_SECRET_KEY)
+	return jwt.encode(
+		payload=payload,
+		key=ServerConfig.JWT_SECRET_KEY,
+		algorithm=ServerConfig.JWT_ENCODE_ALGORITM,
+	)
 
 class AuthController:
 	def __init__(self, sio: AsyncServer):
@@ -88,11 +93,11 @@ class AuthController:
 					'is_avatar_saved': is_avatar_saved,
 				},
 			)
-		except Exception as error:
+		except:
 			print(f'[REGISTRATION] UNEXCEPTED error: {format_exc()}')
 			return web.json_response(
 				status=500,
-				data='unexpected server error',
+				data=UNEXCEPTED_SERVER_ERROR_MESSAGE,
 			)
 
 	async def login(self, request: web.Request):
@@ -148,10 +153,10 @@ class AuthController:
 					'token': token,
 				},
 			)
-		except Exception as error:
-			print(f'[LOGIN] UNEXCEPTED error: {error}')
+		except:
+			print(f'[LOGIN] UNEXCEPTED error: {format_exc()}')
 			return web.json_response(
 				status=500,
-				data='unexpected server error',
+				data=UNEXCEPTED_SERVER_ERROR_MESSAGE,
 			)
 

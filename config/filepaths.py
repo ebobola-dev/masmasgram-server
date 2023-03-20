@@ -1,4 +1,4 @@
-class FILEPATHS:
+class Filepaths:
 	SERVER_CONFIG = 'config/static/server.yaml'
 	DATABASE_CONFIG = 'config/static/database.yaml'
 	USER_AVATARS = 'user_files/avatars'

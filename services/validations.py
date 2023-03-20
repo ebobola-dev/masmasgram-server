@@ -1,9 +1,14 @@
 import re
+import jwt
+from traceback import format_exc
 
 from config.models import *
+from config.server import ServerConfig
 from services.database import DatabaseService
 
 #? Any function retutns None if all checks passed successfully, else returs error message
+
+#! Function [token_validation] changes request parameters
 class Validations:
 	username_pattern = re.compile(USERNAME_REGEX_PATTERN)
 	@staticmethod
@@ -53,3 +58,14 @@ class Validations:
 			return 'Расширение фотографии должно быть в виде строки'
 		if image_ext not in ALLOWED_IMAGE_EXTENSIONS:
 			return f'Неверное расширение фотографии (допустимые: {ALLOWED_IMAGE_EXTENSIONS})'
+
+	@staticmethod
+	def token_validation(auth_headers: str | None, request_body: dict):
+		error_message = 'Вы не авторизированы'
+		try:
+			token = auth_headers.split(' ')[1]
+			decoden_data = jwt.decode(token, key=ServerConfig.JWT_SECRET_KEY, algorithms=ServerConfig.JWT_ENCODE_ALGORITM)
+			request_body['authorized_data'] = decoden_data
+		except:
+			print(f'error on validation token: {format_exc()}')
+			return error_message

@@ -1,10 +1,9 @@
-from io import BytesIO
-from PIL import Image
 from aiohttp import web
 from socketio import AsyncServer
 from traceback import format_exc
 
-from config.filepaths import FILEPATHS
+from config.strings import *
+from models.user import User
 from services.database import DatabaseService
 from services.validations import Validations
 
@@ -28,30 +27,29 @@ class UserController:
 					'is_exists': user is not None,
 				},
 			)
-		except Exception as error:
-			print(f'[CHECK USERNAME IS EXISTS] UNEXCEPTED error: {error}')
+		except:
+			print(f'[CHECK USERNAME IS EXISTS] UNEXCEPTED error: {format_exc()}')
 			return web.json_response(
 				status=500,
-				data='unexpected server error',
+				data=UNEXCEPTED_SERVER_ERROR_MESSAGE,
 			)
 
-	async def upload_image_test_func(self, request: web.Request):
+	async def get_my_user_data(self, request: web.Request):
 		try:
-			body: dict = await request.post()
-			image = body.get('image')
-			image_ext = body.get('image_ext')
-			if image is not None:
-				image_content = image.file.read()
-				pil_image = Image.open(BytesIO(image_content))
-				pil_image.save(f'{FILEPATHS.USER_AVATARS}/some_id{image_ext}')
+			user_id = request.get('authorized_data').get('id')
+			database_user = DatabaseService.user_collection.find_one({ '_id': user_id })
+			if database_user is None:
+				return web.json_response(
+					status=400,
+					data='Данные не найдены',
+				)
+			user = User.from_database_view(database_user)
 			return web.json_response(
-				data={
-					'aboba': 123,
-				},
+				data=user.to_client_view(),
 			)
-		except Exception as error:
-			print(f'[upload_image_test_func] UNEXCEPTED error: {format_exc()}')
+		except:
+			print(f'[get_my_user_data] UNEXCEPTED error: {format_exc()}')
 			return web.json_response(
 				status=500,
-				data='unexpected server error',
+				data=UNEXCEPTED_SERVER_ERROR_MESSAGE,
 			)

@@ -5,4 +5,5 @@
 /config/static
 /user_files
 test.py
+web_test.py
 upload_image_test.py
