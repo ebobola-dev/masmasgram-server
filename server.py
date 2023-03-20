@@ -31,6 +31,8 @@ async def main():
 		web.post(Routes.LOGIN, auth_controller.login),
 		web.get(Routes.USERNAME_IS_EXISTS, user_controller.check_username_is_exists),
 		web.get(Routes.GET_MY_USER_DATA, user_controller.get_my_user_data),
+		web.get(Routes.GET_USERS, user_controller.get_users),
+		web.get(Routes.GET_USER, user_controller.get_user),
 	])
 
 	DatabaseService.connect()

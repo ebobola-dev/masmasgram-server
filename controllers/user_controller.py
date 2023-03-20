@@ -53,3 +53,55 @@ class UserController:
 				status=500,
 				data=UNEXCEPTED_SERVER_ERROR_MESSAGE,
 			)
+
+	async def get_users(self, request: web.Request):
+		try:
+			database_users = DatabaseService.user_collection.find()
+			if database_users is None:
+				return web.json_response(
+					status=400,
+					data='Данные не найдены',
+				)
+			users = tuple(map(
+				lambda database_user: User.from_database_view(database_user).to_client_view(),
+				tuple(database_users),
+			))
+			return web.json_response(
+				data=users,
+			)
+		except:
+			print(f'[get_users] UNEXCEPTED error: {format_exc()}')
+			return web.json_response(
+				status=500,
+				data=UNEXCEPTED_SERVER_ERROR_MESSAGE,
+			)
+
+	async def get_user(self, request: web.Request):
+		try:
+			target_id = request.rel_url.query.get('id')
+			target_id_validation_error = Validations.id_validation(id=target_id, id_name='id пользователя')
+			if target_id_validation_error is not None:
+				return web.json_response(
+					status=400,
+					data={
+						'error': target_id_validation_error,
+					},
+				)
+			database_user = DatabaseService.user_collection.find_one({ '_id': target_id })
+			if database_user is None:
+				return web.json_response(
+					status=400,
+					data={
+						'error': "Пользователь с указанным id не найден",
+					},
+				)
+			target_user = User.from_database_view(database_user)
+			return web.json_response(
+				data=target_user.to_client_view(),
+			)
+		except:
+			print(f'[get_user] UNEXCEPTED error: {format_exc()}')
+			return web.json_response(
+				status=500,
+				data=UNEXCEPTED_SERVER_ERROR_MESSAGE,
+			)

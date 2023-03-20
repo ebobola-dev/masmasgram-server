@@ -5,6 +5,7 @@ from traceback import format_exc
 from config.models import *
 from config.server import ServerConfig
 from services.database import DatabaseService
+from utils.models import ModelsUtils
 
 #? Any function retutns None if all checks passed successfully, else returs error message
 
@@ -67,5 +68,11 @@ class Validations:
 			decoden_data = jwt.decode(token, key=ServerConfig.JWT_SECRET_KEY, algorithms=ServerConfig.JWT_ENCODE_ALGORITM)
 			request_body['authorized_data'] = decoden_data
 		except:
-			print(f'error on validation token: {format_exc()}')
 			return error_message
+
+	@staticmethod
+	def id_validation(id: str | None, id_name: str = 'id'):
+		if id is None:
+			return f'{id_name} не указан'
+		if not ModelsUtils.is_valid_uuid(id=id):
+			return f'{id_name} указан неверно'
