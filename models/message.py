@@ -42,4 +42,6 @@ class Message:
 		return Message(**ModelsUtils.database_view_to_model_dict(database_message))
 
 	def to_client_view(self):
-		return ModelsUtils.model_to_client_view(model=self)
+		client_view = self.__dict__
+		client_view['date'] = client_view.get('date').isoformat() #? Changing date field to isoformat date
+		return client_view

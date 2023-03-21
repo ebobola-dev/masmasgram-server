@@ -36,4 +36,4 @@ class Chat:
 		return Chat(**ModelsUtils.database_view_to_model_dict(database_chat))
 
 	def to_client_view(self):
-		return ModelsUtils.model_to_client_view(model=self)
+		return self.__dict__

@@ -9,7 +9,7 @@ class Post:
 			id: str,
 			from_user: str,
 			date: datetime | str,
-			imageUrls: list[str],
+			image_paths: list[str],
 			description: str | None = None,
 			likes: list[str] = [],
 			comments: list[str] = [],
@@ -18,7 +18,7 @@ class Post:
 		self.id = id
 		self.from_user = from_user
 		self.date = ModelsUtils.to_datetime(date)
-		self.imageUrls = imageUrls
+		self.image_paths = image_paths
 		self.description = description
 		self.likes = likes
 		self.comments = comments
@@ -27,14 +27,14 @@ class Post:
 	@staticmethod
 	def new(
 		from_user: str,
-		imageUrls: str,
+		image_paths: str,
 		description: str | None = None,
 	):
 		return Post(
 			id=str(uuid4()),
 			from_user=from_user,
 			date=datetime.now(),
-			imageUrls=imageUrls,
+			image_paths=image_paths,
 			description=description,
 		)
 
@@ -46,4 +46,12 @@ class Post:
 		return Post(**ModelsUtils.database_view_to_model_dict(database_post))
 
 	def to_client_view(self):
-		return ModelsUtils.model_to_client_view(model=self)
+		client_view = self.__dict__
+		client_view.pop('image_paths', None)		#? Removing image_paths field
+
+		client_view['date'] = client_view.get('date').isoformat() #? Changing date field to isoformat date
+
+		client_view['likes_count'] = len(client_view.pop('likes', []))
+		client_view['comments_count'] = len(client_view.pop('comments', []))
+		client_view['favorites_count'] = len(client_view.pop('favorites', []))
+		return client_view
