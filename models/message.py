@@ -13,7 +13,7 @@ class Message:
 			text: str,
 			viewed: bool = False,
 	):
-		self.id = id
+		super().__init__(id)
 		self.chat_id = chat_id
 		self.from_user = from_user
 		self.date = ModelsUtils.to_datetime(date)

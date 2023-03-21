@@ -15,7 +15,7 @@ class Post:
 			comments: list[str] = [],
 			favorites: list[str] = [],
 	):
-		self.id = id
+		super().__init__(id)
 		self.from_user = from_user
 		self.date = ModelsUtils.to_datetime(date)
 		self.image_paths = image_paths

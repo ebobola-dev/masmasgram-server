@@ -16,7 +16,7 @@ class User(MyModel):
 			followers: list[str] = [],
 			follows: list[str] = [],
 	):
-		super.__init__(id)
+		super().__init__(id)
 		self.username = username
 		self.password = password
 		self.fullname = fullname

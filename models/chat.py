@@ -13,7 +13,7 @@ class Chat:
 			users: tuple[str],
 			last_message: str = None,
 	):
-		self.id = ModelsUtils.to_object_id(id)
+		super().__init__(id)
 		self.messages_count = messages_count
 		self.users = users
 		self.last_message = ModelsUtils.to_object_id(last_message)
