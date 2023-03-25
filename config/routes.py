@@ -1,4 +1,5 @@
 class Routes:
+	GET_MODELS_SETTINGS = '/get_models_settings'
 	REGISTRATION = '/registration'
 	LOGIN = '/login'
 	USERNAME_IS_EXISTS = '/username_is_exists'

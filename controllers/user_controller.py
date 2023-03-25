@@ -78,21 +78,21 @@ class UserController:
 
 	async def get_user(self, request: web.Request):
 		try:
-			target_id = request.rel_url.query.get('id')
-			target_id_validation_error = Validations.id_validation(id=target_id, id_name='id пользователя')
-			if target_id_validation_error is not None:
+			target_username = request.rel_url.query.get('username')
+			target_username_validation_error = await Validations.username_validation(username=target_username, is_new=False)
+			if target_username_validation_error is not None:
 				return web.json_response(
 					status=400,
 					data={
-						'error': target_id_validation_error,
+						'error': target_username_validation_error,
 					},
 				)
-			database_user = DatabaseService.user_collection.find_one({ '_id': target_id })
+			database_user = DatabaseService.user_collection.find_one({ 'username': target_username })
 			if database_user is None:
 				return web.json_response(
 					status=400,
 					data={
-						'error': "Пользователь с указанным id не найден",
+						'error': "Пользователь с указанным username не найден",
 					},
 				)
 			target_user = User.from_database_view(database_user)

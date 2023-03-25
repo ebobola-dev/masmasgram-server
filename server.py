@@ -9,6 +9,7 @@ from config.routes import Routes
 from services.middleware import Middlewares
 from services.database import DatabaseService
 from services.image import ImageService
+from controllers.other_controller import OtherController
 from controllers.auth_controller import AuthController
 from controllers.user_controller import UserController
 
@@ -23,10 +24,12 @@ async def main():
 	])
 	sio.attach(app)
 
+	other_controller = OtherController(sio=sio)
 	auth_controller = AuthController(sio=sio)
 	user_controller = UserController(sio=sio)
 
 	app.add_routes([
+		web.get(Routes.GET_MODELS_SETTINGS, other_controller.get_models_settings),
 		web.post(Routes.REGISTRATION, auth_controller.registration),
 		web.post(Routes.LOGIN, auth_controller.login),
 		web.get(Routes.USERNAME_IS_EXISTS, user_controller.check_username_is_exists),
