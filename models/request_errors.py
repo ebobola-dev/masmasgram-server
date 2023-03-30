@@ -1,5 +1,5 @@
 from config.strings import *
-
+from models.validation_error import ValidationError
 class RequestException:
 	def __init__(
 		self,
@@ -35,7 +35,7 @@ class ForbiddenError(RequestException):
 		super().__init__(
 			code=51,
 			ru_errors=('У вас нет доступа',),
-			ru_errors=("You don't have access",),
+			eu_errors=("You don't have access",),
 		)
 
 class BadRequestDataError(RequestException):
@@ -50,12 +50,19 @@ class BadRequestDataError(RequestException):
 			eu_errors=eu_errors,
 		)
 
+	@staticmethod
+	def from_validation_errors(validation_errors: tuple[ValidationError]):
+		return BadRequestDataError(
+			ru_errors=tuple(error.ru_message for error in validation_errors),
+			eu_errors=tuple(error.eu_message for error in validation_errors),
+		)
+
 class IncorrectLoginDataError(RequestException):
 	def __init__(self):
 		super().__init__(
 			code=101,
 			ru_errors=['Неверный логин или пароль'],
-			ru_errors=['Username or password is incorrect'],
+			eu_errors=['Username or password is incorrect'],
 		)
 
 class DataNotFoundError(RequestException):
@@ -63,7 +70,7 @@ class DataNotFoundError(RequestException):
 		super().__init__(
 			code=102,
 			ru_errors=['Данные не найдены'],
-			ru_errors=['Data not found'],
+			eu_errors=['Data not found'],
 		)
 
 class UserWithUsernameNotFound(RequestException):
@@ -71,5 +78,5 @@ class UserWithUsernameNotFound(RequestException):
 		super().__init__(
 			code=102,
 			ru_errors=['Пользователь с указанным username не был найден'],
-			ru_errors=['User with specified username was not found'],
+			eu_errors=['User with specified username was not found'],
 		)

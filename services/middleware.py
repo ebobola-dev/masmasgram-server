@@ -13,9 +13,9 @@ class Middlewares:
 		auth_headers = request.headers.get('Authorization')
 		validation_error = Validations.token_validation(auth_headers=auth_headers, request_body=request)
 		if validation_error is not None:
-			print(f'[Authorized middleware] error: {validation_error}')
+			print(f'[Authorized middleware] Validation error:  {validation_error}')
 			return web.json_response(
 				status=203,
-				data=NotAuthorizedError(),
+				data=NotAuthorizedError().toJson(),
 			)
 		return await handler(request)

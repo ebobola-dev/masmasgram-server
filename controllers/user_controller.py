@@ -18,7 +18,7 @@ class UserController:
 			if username_validation_error is not None:
 				return web.json_response(
 					status=400,
-					data=BadRequestDataError(ru_errors=(username_validation_error, )).toJson(),
+					data=BadRequestDataError.from_validation_errors((username_validation_error, )).toJson(),
 				)
 			user = DatabaseService.user_collection.find_one({ 'username': username })
 			return web.json_response(
@@ -83,7 +83,7 @@ class UserController:
 			if target_username_validation_error is not None:
 				return web.json_response(
 					status=400,
-					data=BadRequestDataError(ru_errors=(target_username_validation_error,)),
+					data=BadRequestDataError.from_validation_errors((target_username_validation_error, )).toJson(),
 				)
 			database_user = DatabaseService.user_collection.find_one({ 'username': target_username })
 			if database_user is None:

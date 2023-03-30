@@ -47,10 +47,10 @@ class AuthController:
 				)
 			)
 			if len(validation_errors):
-				print(f'[REGISTRATION] Error: {validation_errors}')
+				print(f'[REGISTRATION] Validation errors: {validation_errors}')
 				return web.json_response(
 					status=400,
-					data=BadRequestDataError(ru_errors=validation_errors).toJson(),
+					data=BadRequestDataError.from_validation_errors(validation_errors).toJson(),
 				)
 
 			#? If fullname is not None, strip it, if stripped fullname is empty => fullname is None
@@ -113,10 +113,10 @@ class AuthController:
 				)
 			)
 			if len(validation_errors):
-				print(f'[LOGIN] Error: {validation_errors}')
+				print(f'[LOGIN] Validation error: {validation_errors}')
 				return web.json_response(
 					status=400,
-					data=BadRequestDataError(ru_errors=validation_errors).toJson(),
+					data=BadRequestDataError.from_validation_errors(validation_errors).toJson(),
 				)
 
 			#? Find user in database by username
@@ -125,9 +125,7 @@ class AuthController:
 				print(f'[LOGIN] Error: Пользователя с "{username}" юзернеймом не найден')
 				return web.json_response(
 					status=400,
-					data={
-						'error': 'Неверный логин или пароль',
-					},
+					data=IncorrectLoginDataError().toJson(),
 				)
 			user = User.from_database_view(database_user=database_user)
 
