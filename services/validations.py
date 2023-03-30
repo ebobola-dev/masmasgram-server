@@ -126,3 +126,9 @@ class Validations:
 				eu_message=f'{id_name} specified incorrectly',
 				ru_message=f'{id_name} указан неверно',
 			)
+		user_in_database = DatabaseService.user_collection.find_one({ '_id': id})
+		if user_in_database is None:
+			return ValidationError(
+				eu_message=f'User with specified {id_name} not found',
+				ru_message=f'Пользователь с указанным {id_name} не найден',
+			)
