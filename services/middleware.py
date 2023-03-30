@@ -2,6 +2,7 @@ from aiohttp import web
 
 from config.routes import Routes
 from services.validations import Validations
+from models.request_errors import NotAuthorizedError
 
 class Middlewares:
 	@staticmethod
@@ -15,6 +16,6 @@ class Middlewares:
 			print(f'[Authorized middleware] error: {validation_error}')
 			return web.json_response(
 				status=203,
-				data=validation_error,
+				data=NotAuthorizedError(),
 			)
 		return await handler(request)

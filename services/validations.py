@@ -1,13 +1,13 @@
 import re
 import jwt
-from traceback import format_exc
 
 from config.models import *
 from config.server import ServerConfig
 from services.database import DatabaseService
 from utils.models import ModelsUtils
+from models.validation_error import ValidationError
 
-#? Any function retutns None if all checks passed successfully, else returs error message
+#? Any function retutns None if all checks passed successfully, else returs [ValidationError] object
 
 #! Function [token_validation] changes request parameters
 class Validations:
@@ -15,64 +15,114 @@ class Validations:
 	@staticmethod
 	async def username_validation(username: str | None, is_new: bool = True):
 		if username is None:
-			return 'Имя пользователя не указано'
+			return ValidationError(
+				eu_message='Username is not specified',
+				ru_message='Имя пользователя не указано',
+			)
 		if not isinstance(username, str):
-			return f'Имя пользователя должен быть строчным типом'
+			return ValidationError(
+				eu_message='Username must be a string type',
+				ru_message='Имя пользователя должно быть строчным типом',
+			)
 		if not len(username) in range(USERNAME_MIN_LEN, USERNAME_MAX_LEN + 1):
-			return f'Неверная длина имени пользователя (мин: {USERNAME_MIN_LEN}, макс: {USERNAME_MAX_LEN})'
+			return ValidationError(
+				eu_message=f'Invalid username length (min: {USERNAME_MIN_LEN}, max: {USERNAME_MAX_LEN})',
+				ru_message=f'Неверная длина имени пользователя (мин: {USERNAME_MIN_LEN}, макс: {USERNAME_MAX_LEN})',
+			)
 		regex_result = Validations.username_pattern.match(username)
 		if regex_result is None:
-			return 'Имя пользователя должно начинатся с латинской буквы, также оно может содержать только латиницу, цифры и знак нижнего подчеркивания'
+			return ValidationError(
+				eu_message='Username must start with a Latin letter, and it can also contain only Latin letters, numbers, and underscores',
+				ru_message='Имя пользователя должно начинатся с латинской буквы, также оно может содержать только латиницу, цифры и знак нижнего подчеркивания',
+			)
 		if is_new:
 			username_is_taken = DatabaseService.user_collection.find_one({'username': username}) != None
 			if username_is_taken:
-				return 'Имя пользователя уже занято'
+				return ValidationError(
+					eu_message='Username is already taken',
+					ru_message='Имя пользователя уже занято',
+				)
 
 	@staticmethod
 	def password_validation(password: str | None):
 		if password is None:
-			return 'Пароль не указан'
+			return ValidationError(
+				eu_message='Password is not specified',
+				ru_message='Пароль не указан',
+			)
 		if not isinstance(password, str):
-			return f'Пароль должен быть строчным типом'
+			return ValidationError(
+				eu_message='Password must be a string type',
+				ru_message='Пароль должен быть строчным типом',
+			)
 		if not len(password) in range(PASSWORD_MIN_LEN, PASSWORD_MAX_LEN + 1):
-			return f'Неверная длина пароля (мин: {PASSWORD_MIN_LEN}, макс: {PASSWORD_MAX_LEN})'
+			return ValidationError(
+				eu_message=f'Invalid password length (min: {PASSWORD_MIN_LEN}, max: {PASSWORD_MAX_LEN})',
+				ru_message=f'Неверная длина пароля (мин: {PASSWORD_MIN_LEN}, макс: {PASSWORD_MAX_LEN})',
+			)
 		if ' ' in password:
-			return 'Пароль не должен содержать пробелы'
+			return ValidationError(
+				eu_message='The password must not contain spaces',
+				ru_message='Пароль не должен содержать пробелы',
+			)
 
 	@staticmethod
 	def fullname_validation(fullname: str | None):
 		if fullname is None:
 			return
 		if not isinstance(fullname, str):
-			return f'Имя должно быть строчным типом'
+			return ValidationError(
+				eu_message='Fullname must be a string type',
+				ru_message='Имя должно быть строчным типом',
+			)
 		fullname = fullname.strip()
 		if not len(fullname) in range(FULLNAME_MAX_LENGTH + 1):
-			return f'Максимальная длина имени: {FULLNAME_MAX_LENGTH}'
+			return ValidationError(
+				eu_message=f'Max length of fullname: {FULLNAME_MAX_LENGTH}',
+				ru_message=f'Максимальная длина имени: {FULLNAME_MAX_LENGTH}',
+			)
 
 	@staticmethod
 	def image_validation(image, image_ext: str):
 		if image is None:
 			return
 		if image_ext is None:
-			return 'Расширение фотографии не указано'
+			return ValidationError(
+				eu_message='Image extension not specified',
+				ru_message='Расширение фотографии не указано',
+			)
 		if not isinstance(image_ext, str):
-			return 'Расширение фотографии должно быть в виде строки'
+			return ValidationError(
+				eu_message='Image extension must be a string type',
+				ru_message='Расширение фотографии должно быть в виде строки',
+			)
 		if image_ext not in ALLOWED_IMAGE_EXTENSIONS:
-			return f'Неверное расширение фотографии (допустимые: {ALLOWED_IMAGE_EXTENSIONS})'
+			return ValidationError(
+				eu_message=f'Invalid image extension (allowed: {ALLOWED_IMAGE_EXTENSIONS})',
+				ru_message=f'Неверное расширение фотографии (допустимые: {ALLOWED_IMAGE_EXTENSIONS})',
+			)
 
 	@staticmethod
 	def token_validation(auth_headers: str | None, request_body: dict):
-		error_message = 'Вы не авторизированы'
 		try:
 			token = auth_headers.split(' ')[1]
 			decoden_data = jwt.decode(token, key=ServerConfig.JWT_SECRET_KEY, algorithms=ServerConfig.JWT_ENCODE_ALGORITM)
 			request_body['authorized_data'] = decoden_data
 		except:
-			return error_message
+			return ValidationError(
+				eu_message='You are not authorized',
+				ru_message='Вы не авторизованы',
+			)
 
 	@staticmethod
 	def id_validation(id: str | None, id_name: str = 'id'):
 		if id is None:
-			return f'{id_name} не указан'
+			return ValidationError(
+				eu_message=f'{id_name} is not specified',
+				ru_message=f'{id_name} не указан',
+			)
 		if not ModelsUtils.is_valid_uuid(id=id):
-			return f'{id_name} указан неверно'
+			return ValidationError(
+				eu_message=f'{id_name} specified incorrectly',
+				ru_message=f'{id_name} указан неверно',
+			)

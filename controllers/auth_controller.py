@@ -5,12 +5,11 @@ from socketio import AsyncServer
 from traceback import format_exc
 
 from models.user import User
-from config.strings import *
 from config.server import ServerConfig
 from services.validations import Validations
 from services.database import DatabaseService
 from services.image import ImageService
-
+from models.request_errors import *
 
 
 def _generateAccessToken(id: str):
@@ -51,9 +50,7 @@ class AuthController:
 				print(f'[REGISTRATION] Error: {validation_errors}')
 				return web.json_response(
 					status=400,
-					data={
-						'errors': validation_errors,
-					},
+					data=BadRequestDataError(ru_errors=validation_errors).toJson(),
 				)
 
 			#? If fullname is not None, strip it, if stripped fullname is empty => fullname is None
@@ -97,7 +94,7 @@ class AuthController:
 			print(f'[REGISTRATION] UNEXCEPTED error: {format_exc()}')
 			return web.json_response(
 				status=500,
-				data=UNEXCEPTED_SERVER_ERROR_MESSAGE,
+				data=UnexceptedServerError().toJson(),
 			)
 
 	async def login(self, request: web.Request):
@@ -119,9 +116,7 @@ class AuthController:
 				print(f'[LOGIN] Error: {validation_errors}')
 				return web.json_response(
 					status=400,
-					data={
-						'error': 'Неверный логин или пароль',
-					},
+					data=BadRequestDataError(ru_errors=validation_errors).toJson(),
 				)
 
 			#? Find user in database by username
@@ -141,9 +136,7 @@ class AuthController:
 				print(f'[LOGIN] Error: @{username} введён неверный пароль')
 				return web.json_response(
 					status=400,
-					data={
-						'error': 'Неверный логин или пароль',
-					},
+					data=IncorrectLoginDataError().toJson(),
 				)
 
 			token = _generateAccessToken(id=user.id)
@@ -157,6 +150,6 @@ class AuthController:
 			print(f'[LOGIN] UNEXCEPTED error: {format_exc()}')
 			return web.json_response(
 				status=500,
-				data=UNEXCEPTED_SERVER_ERROR_MESSAGE,
+				data=UnexceptedServerError().toJson(),
 			)
 

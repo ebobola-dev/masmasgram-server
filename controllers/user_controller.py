@@ -2,10 +2,10 @@ from aiohttp import web
 from socketio import AsyncServer
 from traceback import format_exc
 
-from config.strings import *
 from models.user import User
 from services.database import DatabaseService
 from services.validations import Validations
+from models.request_errors import *
 
 class UserController:
 	def __init__(self, sio: AsyncServer):
@@ -18,7 +18,7 @@ class UserController:
 			if username_validation_error is not None:
 				return web.json_response(
 					status=400,
-					data={'error': username_validation_error},
+					data=BadRequestDataError(ru_errors=(username_validation_error, )).toJson(),
 				)
 			user = DatabaseService.user_collection.find_one({ 'username': username })
 			return web.json_response(
@@ -31,7 +31,7 @@ class UserController:
 			print(f'[CHECK USERNAME IS EXISTS] UNEXCEPTED error: {format_exc()}')
 			return web.json_response(
 				status=500,
-				data=UNEXCEPTED_SERVER_ERROR_MESSAGE,
+				data=UnexceptedServerError().toJson(),
 			)
 
 	async def get_my_user_data(self, request: web.Request):
@@ -41,7 +41,7 @@ class UserController:
 			if database_user is None:
 				return web.json_response(
 					status=400,
-					data='Данные не найдены',
+					data=DataNotFoundError().toJson(),
 				)
 			user = User.from_database_view(database_user)
 			return web.json_response(
@@ -51,7 +51,7 @@ class UserController:
 			print(f'[get_my_user_data] UNEXCEPTED error: {format_exc()}')
 			return web.json_response(
 				status=500,
-				data=UNEXCEPTED_SERVER_ERROR_MESSAGE,
+				data=UnexceptedServerError().toJson(),
 			)
 
 	async def get_users(self, request: web.Request):
@@ -60,7 +60,7 @@ class UserController:
 			if database_users is None:
 				return web.json_response(
 					status=400,
-					data='Данные не найдены',
+					data=DataNotFoundError().toJson(),
 				)
 			users = tuple(map(
 				lambda database_user: User.from_database_view(database_user).to_client_view(),
@@ -73,7 +73,7 @@ class UserController:
 			print(f'[get_users] UNEXCEPTED error: {format_exc()}')
 			return web.json_response(
 				status=500,
-				data=UNEXCEPTED_SERVER_ERROR_MESSAGE,
+				data=UnexceptedServerError().toJson(),
 			)
 
 	async def get_user(self, request: web.Request):
@@ -83,17 +83,13 @@ class UserController:
 			if target_username_validation_error is not None:
 				return web.json_response(
 					status=400,
-					data={
-						'error': target_username_validation_error,
-					},
+					data=BadRequestDataError(ru_errors=(target_username_validation_error,)),
 				)
 			database_user = DatabaseService.user_collection.find_one({ 'username': target_username })
 			if database_user is None:
 				return web.json_response(
 					status=400,
-					data={
-						'error': "Пользователь с указанным username не найден",
-					},
+					data=UserWithUsernameNotFound().toJson(),
 				)
 			target_user = User.from_database_view(database_user)
 			return web.json_response(
@@ -103,5 +99,5 @@ class UserController:
 			print(f'[get_user] UNEXCEPTED error: {format_exc()}')
 			return web.json_response(
 				status=500,
-				data=UNEXCEPTED_SERVER_ERROR_MESSAGE,
+				data=UnexceptedServerError().toJson(),
 			)

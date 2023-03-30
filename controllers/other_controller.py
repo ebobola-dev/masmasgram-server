@@ -3,7 +3,7 @@ from socketio import AsyncServer
 from traceback import format_exc
 
 from config.models import *
-from config.strings import *
+from models.request_errors import *
 
 class OtherController:
 	def __init__(self, sio: AsyncServer):
@@ -32,5 +32,5 @@ class OtherController:
 			print(f'[GET MODELS SETTINGS] UNEXCEPTED error: {format_exc()}')
 			return web.json_response(
 				status=500,
-				data=UNEXCEPTED_SERVER_ERROR_MESSAGE,
+				data=UnexceptedServerError().toJson(),
 			)
