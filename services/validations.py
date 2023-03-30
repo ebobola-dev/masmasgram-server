@@ -108,6 +108,12 @@ class Validations:
 			token = auth_headers.split(' ')[1]
 			decoden_data = jwt.decode(token, key=ServerConfig.JWT_SECRET_KEY, algorithms=ServerConfig.JWT_ENCODE_ALGORITM)
 			request_body['authorized_data'] = decoden_data
+			user_in_database = DatabaseService.user_collection.find_one({ '_id': decoden_data.get('id') })
+			if user_in_database is None:
+				return ValidationError(
+					eu_message=f'User with id from token not found',
+					ru_message=f'Пользователь с id из токена не найден',
+				)
 		except:
 			return ValidationError(
 				eu_message='You are not authorized',
@@ -125,10 +131,4 @@ class Validations:
 			return ValidationError(
 				eu_message=f'{id_name} specified incorrectly',
 				ru_message=f'{id_name} указан неверно',
-			)
-		user_in_database = DatabaseService.user_collection.find_one({ '_id': id})
-		if user_in_database is None:
-			return ValidationError(
-				eu_message=f'User with specified {id_name} not found',
-				ru_message=f'Пользователь с указанным {id_name} не найден',
 			)
